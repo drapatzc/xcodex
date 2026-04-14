@@ -24,7 +24,7 @@ Xcode Developer Toolbox Light is a lightweight, keyboard-driven CLI app for iOS 
 
 - **Build speed flags applied** — All build calls use up to four parameters (`-parallelizeTargets`, `COMPILER_INDEX_STORE_ENABLE=NO`, `ONLY_ACTIVE_ARCH=YES`, and in Debug mode additionally `DEBUG_INFORMATION_FORMAT=dwarf` and `SWIFT_COMPILATION_MODE=incremental`) to noticeably reduce build times.
 
-- **`-derivedDataPath` set consistently** — All xcodebuild calls redirect build artefacts to the product-specific folder (`DerivedData/{product}`).
+- **`-derivedDataPath` set consistently** — All xcodebuild calls redirect build artefacts to the product-specific folder (`DerivedData/{product}`) — including resolve steps.
 
 - **Actions:** Build, Build & Run (Simulator / macOS), Quick Reset & Build, Full Reset & Build.
 
@@ -36,7 +36,11 @@ Xcode Developer Toolbox Light is a lightweight, keyboard-driven CLI app for iOS 
 
 ### Dependencies
 
-- **Dependencies** — Shows the currently resolved SPM dependencies from `Package.resolved` or the package graph.
+- **SPM — Show Dependencies** — Shows the currently resolved SPM dependencies from `Package.resolved` or the package graph.
+
+- **CocoaPods — Show Dependencies** — Parses `Podfile.lock` and displays all installed pods with name and version in a consistent format.
+
+- **Carthage — Show Dependencies** — Parses `Cartfile.resolved` and displays all installed frameworks with name, version, and source URL in a consistent format.
 
 - **Resolve** — Resolves all detected package dependencies (SPM, CocoaPods, Carthage).
 
@@ -67,5 +71,9 @@ Xcode Developer Toolbox Light is a lightweight, keyboard-driven CLI app for iOS 
 ### Localisation
 
 - **DE and EN** fully localised.
+
+### Bug Fixes
+
+- **Duplicate DerivedData directory fixed** — All `xcodebuild -resolvePackageDependencies` calls previously omitted the `-derivedDataPath` flag. This caused Xcode to create a second default DerivedData directory alongside the product-specific folder. All six affected locations have been corrected.
 
 ---
