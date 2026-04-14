@@ -1,4 +1,4 @@
-# XCODEX — Xcode Developer Toolbox Light
+# XCODEX — Xcode Developer Toolbox
 
 A lightweight, cursor-driven CLI app for iOS and macOS developers.  
 Combines Clean & Cache, Dependencies, Build & Run, Simulator, Test, and Xcode control in a single cursor-driven split-pane menu.  

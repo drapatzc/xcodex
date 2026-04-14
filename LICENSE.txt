@@ -1,4 +1,4 @@
-Xcode Developer Toolbox License
+Xcodex License
 
 Copyright (c) 2026 Christian Drapatz
 
