@@ -2,6 +2,32 @@
 
 ---
 
+## Version 1.0.1 — 2026-04-15
+
+### Bug Fixes
+
+- **Build (compile only) fixed for macOS** — An incorrect `isMacOSDevice` guard in `actionBuildDebug()` was unconditionally blocking macOS builds, even though `xcodebuild build` with `-destination 'platform=macOS'` works correctly. The guard has been removed. "Build" is now available for iOS Simulator, iPadOS Simulator, and macOS (My Mac) alike.
+
+- **Duplicate DerivedData directory for macOS fixed** — Two `xcodebuild -showBuildSettings` calls in `SchemeSelector.swift` (bundle ID reading and `detectSchemePlatforms()`) were missing the `-derivedDataPath` flag. On macOS, `xcodebuild` internally resolves packages when querying build settings and writes to the default DerivedData location — this does not occur with the iOS Simulator. Both calls now include `-derivedDataPath '\(toolboxProductBuildPath)'`.
+
+- **Bug fix: "Uninstall app & fresh test"** — If no `.app` file is found in the product-specific build folder, the tool now asks whether the app should be built right away. Confirming starts `actionBuildAndRunSimulator()` directly. Previously only an error message was shown with no further action.
+
+### UI & UX
+
+- **Consistent action headers for shortcut dialogs** — `printActionHeader()` is now used consistently for all global keyboard shortcut dialogs: configuration (`K`), language (`L`), scheme (`S`), and device (`D`). All these dialogs now show the same structured title/description block as regular menu actions.
+
+- **`[A]` workflow: fewer key presses** — When switching the working directory (`A`), scheme selection is now embedded without a trailing `waitForKeyPress()`. The flow proceeds directly to device selection.
+
+- **`selectBuildScheme()` with new parameters** — The function now accepts `showHeader: Bool` and `suppressFinalWait: Bool` for clean embedding in higher-level workflows.
+
+### Build & App Path Display
+
+- **Build path shown after a successful build** — After every successful build, the tool now shows which folder the app was placed in (`printBuiltAppInfo()`). Affected actions: "Build", "Build & Run", "Quick Reset & Build", and "Full Reset & Build".
+
+- **App path shown on launch** — When launching the app directly, the full path of the started `.app` file is printed.
+
+---
+
 ## Version 1.0.0 — 2026-04-14
 
 ### Initial Release
