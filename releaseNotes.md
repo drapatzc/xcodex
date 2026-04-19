@@ -2,6 +2,113 @@
 
 ---
 
+## Version 1.0.2 — 2026-04-19
+
+### Project Manager, Persistent Raw Mode & Header Caching
+
+- **New feature: Project Manager** — New "🔧 Project Manager" category in the split-pane main menu with three actions: `Initialize project` (clones repositories from a JSON configuration into a purely temporary directory), `Update project` (discards local changes and re-pulls), and `Delete project` (removes repositories and the state entry). Full logic in `ActionProjectManager.swift` (~1000 lines). Read-only against the remote — no commits, no pushes. State is persisted per JSON configuration in `.toolbox-project-state.json`. Entries are shown/hidden dynamically via `canShowProjectInit` / `canShowProjectUpdateOrDelete`.
+
+- **Submodule support in the Project Manager** — The Project Manager now supports Git submodules and subtrees in cloned repositories. The optional JSON field `submodule_branch_strategy` controls how submodules are handled when switching branches or commits: `"follow_parent"` (default) switches all submodules to the same branch as the main repository, `"pinned"` leaves submodules at their Git-pinned commit, and an explicit branch name switches all submodules to exactly that branch. The switch is performed via `git submodule foreach --recursive`; if a branch does not exist in a submodule, it stays on its pinned commit (no abort). The "Show project info" action has been extended with a new "Submodules / Subtrees" section that explains all three strategies.
+
+- **Persistent raw mode** — `enterRawMode()` / `exitRawMode()` in `RawInput.swift` enable raw mode (ICANON/ECHO off) once when the main menu starts, instead of per keystroke. Fixes the known issue where arrow keys briefly appeared as `^[[A` on screen because canonical mode was re-enabled between two `readRawKey()` calls. `runAction()` temporarily leaves raw mode during actions (so prompts work normally) and restores it afterwards with a flushed keyboard buffer.
+
+- **Clean terminal cleanup on exit** — `atexit` handler and signal handlers for `SIGINT`, `SIGTERM`, `SIGHUP`, and `SIGQUIT` restore the original `termios` state and bring the cursor back — even when the tool is terminated via Ctrl+C or an external kill.
+
+- **Git branch cached** — The expensive `git branch --show-current` call is no longer executed per rendered frame but only once (`cachedGitBranch()`). After actions, `invalidateHeaderCaches()` discards the cache.
+
+- **AppleInterfaceStyle cached** — `defaults read -g AppleInterfaceStyle` is only executed on first render; the result is stored in `cachedDarkMode`.
+
+- **Categories only rebuilt after actions** — `buildCategories()` no longer runs on every keystroke but only after actions. Saves dozens of `L()`/`Lf()` lookups and string interpolations per key press.
+
+- **Device name & OS in simulator status messages** — `bootDevice()` and `installAndLaunchApp()` now also accept `deviceName`/`deviceOS`; messages now show concrete text like "Starting iPhone 17 Pro — iOS 26.1" instead of a generic "Starting simulator".
+
+- **Stable ESC sequence handling in FileBrowser** — Arrow keys are now read via `VTIME=1` (100 ms timeout per follow-up byte) instead of `fcntl(O_NONBLOCK)`. Prevents occasionally ignored or misinterpreted arrow key sequences.
+
+- **Split-pane left column wider** — Left category column widened from 15 to 18 characters (right column correspondingly 67 → 64), so longer category labels fit without truncation.
+
+### Build & Test Output
+
+- **Report Navigator style** — Build and test output is now presented in Report Navigator style (like Xcode). Structured, readable formatting with phase grouping.
+
+- **XcodeBuildFormatter: structured build output** — Build output is grouped by phases (Compile, Link, Copy, Sign, etc.) and shows meaningful file names when copying resources (CopySwiftLibs, LinkAssetCatalog corrected).
+
+- **Build formatter: target in phase headers** — `showTargetForPhase()` and `extractTargetFromPhaseLine()` now display the build target in relevant phase headers. `printStep()` uses `▸` instead of `→` for clearer visual separation.
+
+- **Timeline with 3 states** — The build timeline now clearly distinguishes: ✅ Success, ⚠️ Technical Failure, ❌ Real Failures. Visual differentiation instead of simple success/failure.
+
+### Tests
+
+- **3-state test result classification** — Previously the tool only distinguished between "passed" and "failed". From now on three states are clearly separated:
+
+  - ✅ **Success** — All tests passed, no technical error.
+  - ⚠️ **Technical Failure** — `xcodebuild` reported `** TEST FAILED **`, but no actual test case failed (e.g. empty test target, missing test plan configuration, compiler error). The result is highlighted in yellow; a hint text explains the difference from real test failures.
+  - ❌ **Real Failures** — At least one test case actually failed. Red border as before.
+
+- **`TestRunOutcome` enum** — New enum with three cases: `.success`, `.technicalFailure`, and `.realFailures`. The `outcome` property on `TestRunData` derives the state from the set flags and counters.
+
+- **`testFailed` flag in `TestRunData`** — New `Bool` field: set when `xcodebuild` outputs `** TEST FAILED **` — regardless of whether real test cases failed.
+
+- **`printTestResultBox()` and `printTestSummary()` reworked** — Both functions now use a `switch data.outcome` instead of a simple `if/else`. Technical failures get their own yellow box with a hint message.
+
+- **Live parsing: `runTestsLive()` detects `** TEST FAILED **`** — The live parser now sets `data.testFailed` when `xcodebuild` emits this marker.
+
+- **`parseTestData()` updated** — The static parse function also sets the new `testFailed` flag correctly.
+
+- **New test menu options** — Two new actions in the test menu: "Compile for testing" (without running tests) and "Run tests (no build)" (using pre-built app). `confirmAction()` before unit, UI, and all tests.
+
+### Input & Interaction
+
+- **[x] as unified back key** — No Enter needed anymore. [x] works consistently in: `waitForKeyPress()`, `DeviceSelector`, `SimulatorActions`. Significantly simplifies interaction.
+
+- **confirmAction() responds immediately** — Confirms directly on j/J/y/Y without delay. Faster workflows.
+
+- **Simulator loops: [+] without Enter** — For additional simulator iterations. More intuitive control flow.
+
+- **readRawChar() and readDeviceSelection(max:)** — New input functions for improved control.
+
+- **Live SPM package list during resolution** — While `xcodebuild -resolvePackageDependencies` runs, all packages are updated with live status indicators (○ pending / ⠋ loading / ✓ done / ✗ failed). ActivitySpinner shows the package name during Fetch/Clone. SPM dependency list uses new `printDepRow()` format (`◆ Name ─── version`).
+
+- **`actionCancelled` flag and "Cancelled" message** — After declining a `confirmAction()` prompt, `waitForKeyPress()` returns immediately. A unified cancellation message is shown.
+
+- **ActivitySpinner for cache and DerivedData operations** — `printStep()` replaced by ActivitySpinner. `printCtrlCHint()` now appears before the operation. `xcodebuild clean` uses `runXcodebuildLiveFormatted`.
+
+- **`readDeviceSelection()` switched to `readLine()`** — Raw mode no longer needed.
+
+- **New color `Color.boldDarkPurple`** — For [RETURN] hints in input prompts. New localization keys: `spm_resolve_retry`, `start_build_run_confirm`, `action_cancelled`.
+
+### Hotkeys in the Split-Pane Menu
+
+- **Hotkey bar (digits 1–9)** — A new hotkey bar is shown below the split-pane. Nine frequently used actions can be triggered directly by pressing a digit key, without navigating the cursor to a category or entry first:
+  - `1` — Delete Toolbox Build
+  - `2` — Delete caches without SPM
+  - `3` — Build & Run (Simulator or native macOS)
+  - `4` — Quick Reset & Build (DerivedData → Build → Launch)
+  - `5` — Full Reset & Build (all caches → Build → Launch)
+  - `6` — Relaunch app (Simulator mode only)
+  - `7` — Run Unit Tests
+  - `8` — Initialize project (only if no project is set up yet)
+  - `9` — Update project (only if a project has already been initialized)
+
+- **`autoConfirmHotkey` flag** — Actions triggered by a hotkey that would normally show a confirmation prompt (`confirmAction()`) are silently confirmed. The flag is reset after the action completes, so normal menu navigation is unaffected.
+
+### Bug Fixes
+
+- **Darkmode display issue in main menu fixed** — `MainMenu.swift` had a display issue in dark mode; colour values corrected.
+
+- **CocoaPods dependency display corrected** — Fixed an issue in `DependencyActions.swift` causing incorrect output in the dependencies view.
+
+- **Parameterised Swift Testing tests** — `runTestsLive()` and `parseTestData()` now recognise parameterised Swift Testing tests without quotes (e.g. `◇ Test decode_succeeds(input: TestInput(...)) passed after 0.001 seconds.`). Previously silently ignored — counters remained empty.
+
+### Dependencies
+
+- **CocoaPods: Live install/update list** — `runPodsInstallWithLiveList()`: `pod install` and `pod update` show all pods with live status indicators. New action: show Podfile.lock.
+
+- **Carthage: Live update list and new actions** — `runCarthageWithLiveList()` shows all frameworks with live status during `carthage update`/`bootstrap`. New actions: show Cartfile.resolved, Bootstrap, update frameworks.
+
+- **Thread-safe spinner** — `var spinnerRunning` replaced with a `SpinnerFlag` reference type; fixes Swift Sendable warning on thread closure capture.
+
+---
+
 ## Version 1.0.1 — 2026-04-15
 
 ### Bug Fixes
