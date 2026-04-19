@@ -76,6 +76,21 @@
 
 - **New color `Color.boldDarkPurple`** — For [RETURN] hints in input prompts. New localization keys: `spm_resolve_retry`, `start_build_run_confirm`, `action_cancelled`.
 
+### Hotkeys in the Split-Pane Menu
+
+- **Hotkey bar (digits 1–9)** — A new hotkey bar is shown below the split-pane. Nine frequently used actions can be triggered directly by pressing a digit key, without navigating the cursor to a category or entry first:
+  - `1` — Delete Toolbox Build
+  - `2` — Delete caches without SPM
+  - `3` — Build & Run (Simulator or native macOS)
+  - `4` — Quick Reset & Build (DerivedData → Build → Launch)
+  - `5` — Full Reset & Build (all caches → Build → Launch)
+  - `6` — Relaunch app (Simulator mode only)
+  - `7` — Run Unit Tests
+  - `8` — Initialize project (only if no project is set up yet)
+  - `9` — Update project (only if a project has already been initialized)
+
+- **`autoConfirmHotkey` flag** — Actions triggered by a hotkey that would normally show a confirmation prompt (`confirmAction()`) are silently confirmed. The flag is reset after the action completes, so normal menu navigation is unaffected.
+
 ### Bug Fixes
 
 - **Darkmode display issue in main menu fixed** — `MainMenu.swift` had a display issue in dark mode; colour values corrected.
