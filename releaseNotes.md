@@ -2,11 +2,45 @@
 
 ---
 
-## Version 1.0.3 — 2026-04-20
+## Version 1.0.3 — 2026-04-21
 
 ### Physical Devices
 
 - **New feature: Deploy apps to physical devices** — The tool now supports building, installing, and launching apps directly on physical devices (iPhones, iPads). New files: `PhysicalDeviceActions.swift` (~470 lines) encapsulates all physical device actions; `DeviceTarget.swift` defines the new `DeviceTarget` type that unifies simulators and physical devices; `PhysicalDevice.swift` detects and manages connected devices; `PhysicalDeviceSelector.swift` provides a keyboard-driven device selection dialog. The existing `DeviceSelector.swift` has been extended to list physical devices alongside simulators. `MainMenu.swift` (split-pane) was updated to support physical device targets. New settings in `Preferences.swift` allow persisting the last selected physical device. The dashboard displays the active device (simulator or physical) in a unified format.
+
+### Bugfixes
+
+- **Bugfix: Dark mode menu — rendering error fixed** — `isDarkMode()` in `MainMenu.swift` now reads the system appearance via `UserDefaults.standard` instead of a shell call (`defaults read -g AppleInterfaceStyle`). The split-pane menu was rendered incorrectly in dark mode because the shell call occasionally failed inside raw mode.
+
+- **Bugfix: macOS app — device selection skipped during working-directory change** — `MenuDirectory.swift` previously always called `selectDevice()` even when the device had already been auto-set to "My Mac" (macOS-only apps). The guard `!isMacOSDevice` fixes this. Additionally: the section label in `PhysicalDeviceSelector.swift` was corrected to use the proper localisation key `L("device")`.
+
+### UX & Tests
+
+- **UX: Unified menu colour — `boldBlue` instead of `boldMagenta`** — All menu item numbers and action shortcuts in `PhysicalDeviceActions.swift`, `SimulatorActions.swift`, and `DependencyActions.swift` (SPM/CocoaPods/Carthage menus) have been changed from `Color.boldMagenta` to `Color.boldBlue`, consistent with the app-wide colour scheme.
+
+- **UX: Emoji arguments removed from `printSubSectionTitle()`** — `printSubSectionTitle()` is now called without an emoji argument in `ActionProjectManager.swift`, `PackageManagerSync.swift`, and further files. Results in cleaner, more consistent section headings.
+
+- **Tests: Unit/UI tests on physical devices** — `ensureTestDeviceIsSimulator()` replaced by `ensureTestDeviceIsValid()`. Unit tests, UI tests, and "Run all test plans" now also run on physical devices (iPhones, iPads) — no longer restricted to simulators.
+
+- **Tests: `IDE_TESTING_DEVICE_SUPPORT_DIAGNOSTICS=NO` added to speed flags** — Reduces diagnostic data collection when testing on physical devices, speeding up test start.
+
+- **Tests: Show executed command (`printExecutedCommand()`)** — New helper function in `TestActions.swift` that prints the xcodebuild command before it runs, formatted across multiple lines (breaks at flag boundaries, similar to Xcode build logs). Called from `runTestsLiveParsed()` and physical device actions (install app, launch app).
+
+- **Tests: Configuration and signing errors shown in test output** — `runTestsLive()` now detects signing, provisioning, missing development team, and capability errors from the xcodebuild output and displays them in the test report. Previously, `: error:` lines in `.xcodeproj` paths were silently ignored.
+
+- **Tests: Key press after abort** — `postTestInteractionLoop()` now waits for a key press after an `operationAborted` cancel before returning to the menu. Prevents an immediate, unnoticed jump back.
+
+- **Tests: xcresult supplement also after Ctrl+C (physical devices)** — `supplementTestDataFromXCResult()` is now also called after an `operationAborted` user cancel. Background: the user aborts because the toolbox hangs at a password prompt even though the tests have already finished — xcresult is the authoritative result source.
+
+### Simulator
+
+- **Simulator safety: `isSimulatorBooted()` — state check before simulator actions** — New helper `isSimulatorBooted(udid:)` queries `xcrun simctl list devices` to verify the selected simulator is in "Booted" state. Called before Screenshot, Video Recording, and Dark/Light Mode: if the simulator is not running, a clear error message is shown immediately — instead of silent failures and false success feedback. New localisation key `simulator_not_running_error` added in DE and EN.
+
+- **Simulator safety: no more infinite hangs** — `actionRestartCurrentSimulator()` now waits for the simulator to fully boot via `xcrun simctl bootstatus -b` after `xcrun simctl boot` — consistent with the existing `bootDevice()` logic. `bootDevice()` itself: the `bootstatus` wait now uses `runShellLive()` instead of `runShell()`, so Ctrl+C cleanly aborts a hanging simulator.
+
+- **Bugfix: `timeout` command (Linux-only) not available on macOS** — `bootDevice()`, `actionRestartCurrentSimulator()`, and all reset/stop functions used the `timeout` command, which does not exist on macOS. This caused "command not found" errors and `simctl` commands silently not executing — while still showing false success feedback. `timeout` has been replaced with `runShellLive()`; Ctrl+C cleanly aborts all affected simulator commands.
+
+- **Bugfix: Video recording — `try?` replaced with proper error handling** — `actionStartVideoRecording()` used `try? videoProcess.run()`. If the simulator was not running, `readLine()` still blocked waiting for input, and "Recording saved" was falsely displayed afterwards. `run()` is now called with proper error handling; a start failure immediately aborts the action.
 
 ---
 
