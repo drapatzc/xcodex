@@ -2,6 +2,48 @@
 
 ---
 
+## Version 1.0.14 — 2026-04-22
+
+### Clean & Cache
+
+- **New DerivedData browser** — New file `MenuDerivedDataDetails.swift` (209 lines): interactive browser for all DerivedData subdirectories with size display (cached via `du -sh`) and targeted deletion. New entry "Delete DerivedData selectively" in the "Clean & Cache" category of the split-pane menu.
+
+- **Extended cache browser "Show all caches"** — New file `MenuCacheBrowser.swift` (395 lines): navigable browser `menuShowAllCaches()` for all Xcode caches with size display and targeted deletion. The "Show all caches" entry in "Clean & Cache" now opens the full browser. Sizes are cached; deletion with immediate cache invalidation.
+
+### Build & Run
+
+- **Show build settings** — New action `actionShowBuildSettings()` in the "Build & Run" category: displays all resolved build settings for the selected scheme via `xcodebuild -showBuildSettings`. Useful for diagnosing configuration issues and unexpected xcconfig values.
+
+- **Dependencies moved into "Build & Run"** — The "Dependencies" menu item has been moved from its own category into "Build & Run", where it fits naturally in the build workflow.
+
+### Simulator — new control actions
+
+- **New "Control" category** — Twelve new simulator control actions, visible only in simulator mode:
+  - **Test push notification** (`actionTestPushNotification`) — 9 predefined APNs payload templates (Simple, Structured, No Sound, Critical, Silent, Badge Only, With Reply Action, Yes/No Action, Custom)
+  - **Set permissions** (`actionSetSimulatorPermissions`) — Privacy services (camera, photos, microphone, location, etc.) via `xcrun simctl privacy` grant / revoke / reset
+  - **Add media** (`actionAddMedia`) — Add photos or videos to the simulator's gallery via `xcrun simctl addmedia`
+  - **Open deep link** (`actionOpenDeepLink`) — Open a URL or Universal Link in the simulator via `xcrun simctl openurl`
+  - **Mock status bar** (`actionMockStatusBar`) — Set a simulated status bar state
+  - **Reset status bar** (`actionResetStatusBar`) — Restore the status bar to its default state
+  - **Set location** (`actionSetLocation`) — Choose a GPS location from a city list or enter coordinates manually
+  - **Clear keychain** (`actionClearKeychain`) — Reset the simulator's keychain
+  - **Open app data folder** (`actionOpenAppDataFolder`) — Open the app container directly in Finder
+  - Screenshot, video recording, Dark/Light Mode (existing actions, now grouped under "Control")
+
+- **Simulator category extended** — Three new management actions: show all simulators, stop all simulators, clean up unavailable simulators.
+
+### Website & Documentation
+
+- **Website updates** — Corrections to title and product name in `website2/` (HTML, CSS, JS) regarding "XCode vs. Apple" naming conventions.
+
+- **README files updated** — `README.md`, `README_DE.md`, `README_EN.md`, `README_DE.txt`, `README_EN.txt` with updated descriptions.
+
+### Miscellaneous
+
+- **Debug mode: less noise** — `Shell.swift`: certain diagnostic outputs are now only printed in debug builds.
+
+---
+
 ## Version 1.0.3 — 2026-04-21
 
 ### Physical Devices
