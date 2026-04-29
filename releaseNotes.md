@@ -2,6 +2,132 @@
 
 ---
 
+## Version 1.0.5 — 2026-04-26
+
+### Project
+
+- **Group "Project Manager" renamed to "Project"; new select command** — The command group is now consistently named "Project". New entry action `actionProjectSelect()`: selects a JSON configuration file and saves it persistently — all subsequent commands (Initialise, Update, Delete, Info) then operate on this saved configuration without requiring a new file selection. Legacy schema `{ "repositories": [...] }` is automatically migrated. Safety check prevents deletion of system directories. Menu visibility controlled via `canShowProjectFileSelected`.
+
+### Help Overlay
+
+- **Context-sensitive help overlay** — New file `HelpOverlay.swift` (322 lines): an embedded overlay shows an individual help text for each menu item — accessible via `[H]` in the split-pane menu. The text is scrollable (↑/↓) and word-wrapped. `getHelpEntry(categoryName:itemLabel:)` returns the matching `HelpEntry` for the current selection.
+
+### Security & Stability
+
+- **Phase 1: Security and stability** — System-wide hardening across multiple files:
+  - `shellQuote()` applied consistently to all shell arguments containing user paths (prevents shell injection)
+  - `operationAborted` in `AppContext.swift` made thread-safe via `NSLock`
+  - `try? process.run()` replaced with `do/try/catch` with logging (no more silent failures)
+  - Tool availability checked before `pod install`, `carthage`, `xcrun`, and `python3`
+  - Path traversal validation added to `fullRepoPath()`
+  - Encoding fallbacks for non-UTF-8 output
+
+### Localisation
+
+- **New command group "Localisation"** — New file `LocalizationActions.swift` (606 lines) with multiple actions:
+  - **Show available languages** — Combines `*.lproj` folders and `*.xcstrings` files (JSON parsing), deduplicates, and displays all detected language codes.
+  - **Missing localisations** — Compares keys across `.strings` and `.xcstrings` files, lists keys missing in at least one language (structural gaps).
+  - Additional localisation analysis and consistency actions.
+
+### Project Configuration
+
+- **Project configuration expanded** — `ConfigurationInspectActions.swift` (1240+ lines): the submenu now covers all Xcode project tabs: `[1] General`, `[2] Signing & Capabilities`, `[3] Resource Tags`, `[4] Info`, `[5] Build Settings`, `[6] Build Phases`, `[7] Build Rules`, `[8] Entitlements`, `[9] xcconfig files`, `[10] Privacy Manifest`, `[11] StoreKit configuration`. New action `actionProjectStructure()` displays the complete project directory structure with colour-coded depth representation.
+
+### Automated Tests
+
+- **New category "Automated Tests"** — New file `AutomatedTestsActions.swift` (1501 lines): automated test runner with configurable repeat intervals (1 min – 24 h – unlimited). Supports schemes and test plans (`@testplan:` prefix). Live screen with boot-phase display and log file writing. macOS notification after each run. Prerequisite check (project, scheme, device) before starting.
+
+### Binary Analysis
+
+- **New and revised actions** — `BinaryAnalysisActions.swift` (449+ lines): `actionBinaryLinkedFrameworks`, `actionBinaryArchitectures`, `actionBinarySegmentSizes`, `actionBinaryExportedSymbols`, `actionBinaryLargestSymbols`, `actionBinaryLoadCommands`, `actionBinaryMinIosVersion`, `actionBinaryShowEntitlements`. The app binary is selected automatically from the build directory; a selection prompt appears if multiple candidates are found.
+
+### Developer Info
+
+- **New category "Developer Info"** — New files: `DeveloperInfoActions.swift` (641 lines), `DeveloperInfoModels.swift` (112 lines), `DeveloperInfoParsers.swift` (720 lines), `DeveloperInfoService.swift` (198 lines). Ten actions:
+  - **Overview** — Compact summary from cache; `[W]` refreshes on demand.
+  - **Apple Releases**, **Xcode Releases**, **iOS/iPadOS Releases**, **macOS Releases**, **Swift Releases**, **Swift Evolution**, **Apple Developer News**, **Security Updates**, **SwiftUI & Frameworks**.
+
+### App Store & Distribution
+
+- **New command group "App Store & Distribution"** — New file `AppStoreActions.swift` (2,619 lines): complete release workflow for iOS/iPadOS and macOS, integrated into the split-pane main menu.
+  - **Release overview** — Traffic-light status (✓/⚠/✗) for all relevant parameters: working directory, scheme, bundle ID, device, configuration, Apple ID, and team ID. Automatic platform detection (iOS family / macOS / unknown).
+  - **Manage app parameters** — Persistent storage of Apple ID, team ID, and preferred directories for archives, IPAs, and DMGs in `~/.toolboxlight_appstore.json`. Sensitive credentials (app-specific password, API key) stored exclusively in the macOS Keychain.
+  - **Delivery** — Fully automated one-step workflow (only when platform is known): create archive → export/upload — no further user input after confirmation.
+  - **Release checks** — Pre-flight checks: signing configuration, deployment target, frameworks, build settings.
+  - **Release notes from Git** — Generates release notes automatically from the Git log of the current branch.
+  - **Show App Store files** — Lists existing archives (`.xcarchive`), IPA exports, and DMG builds from the configured directories.
+  - **Platform-specific steps:**
+    - *iOS/iPadOS:* Create archive (`xcodebuild archive`), export IPA, upload to TestFlight / App Store (`xcrun altool`).
+    - *macOS:* Create archive, macOS export (`.pkg`), upload, create DMG, notarise (`xcrun notarytool`), staple & verify notarisation.
+
+### Menu & UX
+
+- **Menu layout revised** — `MainMenu.swift`: new categories (Localisation, Automated Tests, Binary Analysis, Developer Info, Project Configuration, App Store & Distribution) integrated into the split-pane menu. Hotkey bar updated. Separator lines and section headers added for better readability.
+
+### Instruments — Bugfixes & Corrections
+
+- **Parser bug fixed** — Template detection via `xcrun xctrace list templates` checked for a leading quote character (`hasPrefix("\"")`) which Xcode 15 no longer outputs — the template list was always empty. Parser corrected: all non-empty lines without the `==` prefix are now accepted as templates. Template names corrected: `"Energy Log"` → `"Power Profiler"`, `"Core Data"` → `"Data Persistence"`. After a successful recording the `.trace` file opens automatically in Instruments.app (`open -a Instruments`). Template menu converted to `item()` and `printMenuItemBack()`.
+
+### Crash & Symbole — Revisions
+
+- **Header shown only once when "Symbolicate all"** — `performSymbolication()` called `printActionHeader()` on every report. New parameter `skipHeader: Bool = false` suppresses the header for subsequent reports; when using "All" it appears once at the top, followed by numbered separator lines (`── 1/N — filename ─────`). Empty state shows only `[S]` and `[X]` (no `[0]`). Menu with entries: navigation bar (`↑↓ navigate  ←→ first/last  ↵ symbolicate  A all`) and buttons via `printMenuItemKey`/`printMenuItemBack`. Cursor left/right jumps ±16 entries (`pageSize`).
+
+### Provisioning Profiles — Revisions
+
+- **Device display matches certificate format** — Bullet points (`•`) with consistent indent, no numbering. Known devices show name, model and OS version; unknown devices show the full UDID (not truncated). `"App ID"` and `"UUID"` replaced with `locStr("prov_profiles_header_appid")` and `locStr("prov_profiles_details_uuid")`. Variables cleaned up: `ind` → `indent`, `knownDev` → `knownDevices`, `deviceMap` instead of `device`.
+
+### Bug Fixes — Tests
+
+- **Retry failing tests** — After a failed test run, the test runner now offers to re-run only the failed tests — no need to restart the entire suite.
+
+- **Bug fix: UI tests running during unit test action** — UI tests were incorrectly also triggered by the "Run Unit Tests" action. The action and automated test repeat loop have been corrected.
+
+### Infrastructure
+
+- **Code signing and notarisation for macOS distribution** — Full build infrastructure for signed and notarised macOS binaries. The Toolbox can now be distributed as an official, GateKeeper-compliant macOS package.
+
+### Security & Stability — Additions
+
+- **Shell injection: all 22 affected files** — Systematic audit and cleanup of all shell calls across the project; `shellQuote()` is now applied consistently in all 22 files. No attack vector via paths containing special characters.
+
+- **Shell.swift hardened** — `malloc`/`free` buffer replaced with a type-safe `[UInt8]` buffer (no force-unwrap); all `FileHandle` instances closed via `defer` (no resource leak).
+
+- **Defensive parsing** — `lipo` and `xcodebuild` output is now parsed defensively; unexpected formats no longer cause crashes.
+
+### Architecture
+
+- **Service extraction complete** — CLI calls fully moved out of menu classes into dedicated services: `ArchiveService` (from `MenuArchiveManager`), `CacheService` and `DependencyResolverService` (from `MenuDirectory`), and all remaining direct shell calls in menus also relocated. Menus no longer contain any business logic.
+
+- **`resolveDetectedPackageManagers`** — New centralised function for detecting and resolving package managers. CLI bypass in menu removed; exit codes now checked consistently.
+
+- **State mutation** — State mutation extracted from `MenuDirectory` into the action layer (`actionApplyProjectSelection`); menus now only read state, never write it directly.
+
+- **Menu localisation** — Hard-coded category names in `MainMenu` replaced with `locStr()` calls.
+
+### Stability & Performance
+
+- **Hard timeouts for long-running operations** — `runBuildLive` / `runXcodebuildLiveFormatted`: 30-minute timeout; `pod install`: 10 minutes; `carthage bootstrap` / `update`: 30 minutes. All remaining `pod`/`carthage` callers also given timeouts. No more infinitely hanging processes.
+
+- **Exit code from `runXcodebuildLiveFormatted`** — Returns the exit code directly instead of storing it in a global `lastXcodebuildExitCode` variable.
+
+- **`currentTimeline` Null Object Pattern** — No more optional chaining; timeline is always initialised.
+
+- **`runShellLivePipe` improved** — Output chunks collected in an array instead of string concatenation; more efficient memory use for long outputs.
+
+- **Spinner thread safeguarded** — `[weak self]` capture and `deinit` safety net against retain cycles.
+
+### Code Quality
+
+- **Variable and function names cleaned up** — Short variable names replaced with descriptive ones; regex patterns documented; WHY comments added for non-obvious logic.
+
+- **Magic numbers** — Spinner constants replaced with named values.
+
+- **`firstAvailableScheme`** — Duplicated `xcodebuild -list` logic replaced with a shared function.
+
+- **Coverage tree** — `build`/`Build` directories excluded from project and coverage tree.
+
+---
+
 ## Version 1.0.14 — 2026-04-22
 
 ### Clean & Cache
