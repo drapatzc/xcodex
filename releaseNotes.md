@@ -2,6 +2,38 @@
 
 ---
 
+## Version 1.0.6 — 2026-05-03
+
+### Code Coverage
+
+- **Coverage tree: only testable artefacts** — The coverage tree now shows exclusively testable artefacts; `build`/`Build` directories are filtered out.
+
+### Menu & UX
+
+- **Menu revised: separators and new order** — Separator lines added to the split-pane menu; entry order adjusted for better usability.
+
+- **Hotkey bar updated** — The hotkey bar below the split-pane has been revised.
+
+### Clean & Cache
+
+- **"Show all caches": delete all at once** — The cache browser now supports deleting all caches in one step. SPM caches are excluded from bulk deletion.
+
+### Project
+
+- **Initialise: full interactive setup** — When initialising a project, the working directory can now be changed directly; project, scheme, test scheme, and device are then selected interactively.
+
+### Bug Fixes
+
+- **Bug fix: Project > Update > output** — The output of the "Update" action in the Project menu has been corrected.
+
+- **Bug fix: unit tests with test plans** — Two bugs fixed when running unit tests in combination with test plans.
+
+### Website
+
+- **PayPal replaced with buymeacoffee** — The donation link on the website has been switched from PayPal to buymeacoffee.
+
+---
+
 ## Version 1.0.5 — 2026-04-26
 
 ### Project
