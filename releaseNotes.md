@@ -4,33 +4,46 @@
 
 ## Version 1.0.6 — 2026-05-03
 
-### Code Coverage
+### Architecture
 
-- **Coverage tree: only testable artefacts** — The coverage tree now shows exclusively testable artefacts; `build`/`Build` directories are filtered out.
+- **New architecture** — The tool has been internally restructured. The codebase now follows a clear layered architecture with strict separation of UI, logic, and infrastructure.
+
+- **Asynchronous size calculation** — Size calculations in actions like "Show all caches" now run asynchronously in the background. The menu responds immediately; values appear once computed.
+
+### View Mode
+
+- **New browser view** — The tool now supports two main views: the existing Xcode mode (split-pane menu) and a new browser view for directory navigation. `SPACE` opens a central switch overlay; `[1]` selects Xcode mode, `[2]` selects browser mode. `Shift+X` and `Shift+B` are direct hotkeys without the overlay. The directory view was ported from the separate XDIRCX tool and integrated seamlessly into XCODEX. Header, frame size, and rendering are aligned to an identical terminal height so that switching between modes does not cause scrolling.
+
 
 ### Menu & UX
 
-- **Menu revised: separators and new order** — Separator lines added to the split-pane menu; entry order adjusted for better usability.
+- **Separator lines in the left column** — The split-pane menu now shows visual separators in the left (category) column as well, grouping related command sets. Category order revised.
 
-- **Hotkey bar updated** — The hotkey bar below the split-pane has been revised.
-
-### Clean & Cache
-
-- **"Show all caches": delete all at once** — The cache browser now supports deleting all caches in one step. SPM caches are excluded from bulk deletion.
+- **Hotkey bar revised** — The assignment of digits 1–9 has been updated.
 
 ### Project
 
-- **Initialise: full interactive setup** — When initialising a project, the working directory can now be changed directly; project, scheme, test scheme, and device are then selected interactively.
+- **Project / Initialise extended** — The initialise view now allows directly switching the working directory and selecting the project scheme, test scheme, and device — without leaving the menu.
+
+### Clean & Cache
+
+- **Delete all caches at once** — A new action under "Show all caches" allows deleting all listed caches in one step. The SPM cache is excluded for stability reasons.
+
+### Test & Code Coverage
+
+- **Coverage tree: testable artefacts only** — The file tree in the Code Coverage view now hides all non-testable entries (build directories, helper files).
 
 ### Bug Fixes
 
-- **Bug fix: Project > Update > output** — The output of the "Update" action in the Project menu has been corrected.
+- **Bug fix: Project > Update > Output** — The console output after updating a project has been corrected.
 
-- **Bug fix: unit tests with test plans** — Two bugs fixed when running unit tests in combination with test plans.
+- **Bug fix: Unit tests with test plans** — Test plans were not correctly applied in unit test actions. Fixed.
 
-### Website
+- **Bug fix: Unit test configuration with test plans** — Additional correction for unit test configuration in combination with test plans.
 
-- **PayPal replaced with buymeacoffee** — The donation link on the website has been switched from PayPal to buymeacoffee.
+### Miscellaneous
+
+- **Donation link: PayPal → buymeacoffee** — The donation link has been updated to buymeacoffee.com.
 
 ---
 
