@@ -2,6 +2,80 @@
 
 ---
 
+## Version 1.0.7 — 2026-05-17
+
+### Applications
+
+- **New command group "Applications"** — The toolbox now has a dedicated category for opening frequently used macOS apps directly from the menu. Three sub-groups: Apple developer tools (Xcodes, Developer, App Store, TestFlight, Safari), system utilities (Terminal, Console, Activity Monitor, System Settings, Passwords, SF Symbols), and third-party developer tools (Fork, Insomnia, Cyberduck, DevCleaner). Only installed apps appear in the list. Apps are launched via their full path instead of the `-a` flag — more reliable on macOS 26+.
+
+### Xcode
+
+- **New Finder shortcuts** — Direct access to project-specific build logs (`DerivedData/<Project>/Logs/Build`), SPM SourcePackages (`DerivedData/<Project>/SourcePackages`) and the CrashReporter folder (device logs). A new entry "Open Xcode logs" opens `~/Library/Logs/Xcode` in Finder.
+
+- **Install Command Line Tools** — New action launches the macOS system dialog for installing the Xcode Command Line Tools.
+
+- **Accept Xcode licence** — Runs `sudo xcodebuild -license accept` with a confirmation prompt.
+
+- **Show installed Xcode versions** — Lists all Xcode.app installations on the system with their version number, marking the currently active one.
+
+- **Reset Xcode preferences** — Deletes `com.apple.dt.Xcode.plist` after two confirmation prompts. Fixes UI hangs and broken keyboard shortcuts in Xcode. Xcode must be closed beforehand.
+
+- **Reset Xcode UserData** — Removes `~/Library/Developer/Xcode/UserData/` after two confirmation prompts (keybindings, themes, snippets, text marks). Xcode reinitialises on next launch.
+
+### Simulator — Control
+
+- **Localised push notification templates** — The texts of the predefined notification templates now appear in the selected toolbox language (German / English).
+
+- **Automatically quit app before push test** — The app is automatically terminated before sending a test notification so that the notification appears as a banner. (An app in the foreground would suppress the banner.)
+
+- **Localised permission display** — Privacy services now show a localised display name alongside the technical service identifier (e.g. "Camera (camera)").
+
+- **New action: terminate and cold-restart app** — Terminates the running app process and cold-launches it again (`xcrun simctl terminate` + `xcrun simctl launch`). Useful for cold-start tests and as preparation for push notification tests.
+
+- **New action: simulate thermal state** — Sets the simulated thermal state of the simulator: Normal, Fair, Serious, or Critical (`xcrun simctl thermal`). The app receives `ProcessInfo.thermalState` changes immediately.
+
+### Simulator — Management
+
+- **Show simulator status** — Displays all installed simulators grouped by runtime, with colour coding (green = Booted, white = Shutdown) and a summary (active / off / total).
+
+- **Create new simulator** — Interactive dialog: select a runtime, select a device type, optionally enter a name, create via `xcrun simctl create`. On success, the new device can be set as the active target directly.
+
+- **Reset all simulators** — Resets all simulator devices to factory state (`xcrun simctl erase all`). App data and settings are removed; device entries remain.
+
+- **Delete all simulator devices** — Removes all simulator device entries (`xcrun simctl delete all`). Simulators must be recreated by Xcode afterwards.
+
+- **Clear simulator cache** — Removes the temporary CoreSimulator cache.
+
+### Localisation
+
+- **Find empty translations** — New action finds keys that exist in a language but have no content (`""` or whitespace only). Complements the existing check for missing keys.
+
+- **Translation progress** — Displays the translation percentage per language as a progress bar, evaluated from `.xcstrings` files.
+
+- **Localisation search** — Interactive search in `.xcstrings` files by key name or translation value (case-insensitive). Shows all available translations for each match.
+
+- **Export XLIFF** — Runs `xcodebuild -exportLocalizations` and places a `.xcloc` package on the desktop — ready to hand off to translators.
+
+### Clean & Cache
+
+- **Safe cleanup** — Removes all safely recoverable core caches after confirmation: full DerivedData, ModuleCache, SwiftPM cache and data, Xcode caches, simulator cache, Xcode logs, and diagnostic reports. All directories are recreated automatically by Xcode and the simulator on next launch.
+
+- **Deep cleanup** — Includes all Safe cleanup steps, plus: Archives and iOS DeviceSupport are removed, and all simulator devices are deleted (`xcrun simctl delete all`).
+
+- **Full cleanup** — Includes all Deep cleanup steps, plus SourcePackages, the global CocoaPods cache, and the global Carthage cache. Simulator runtimes are removed after a separate confirmation prompt (several GB).
+
+### Menu & UX
+
+- **Stable pane height** — The split-pane height is now fixed at 16 rows. Scroll indicators are shown when more entries are available than visible.
+
+- **Cache browser: section headers** — The cache browser now supports non-selectable section headers as visual separators, with an individual description per entry.
+
+### Infrastructure
+
+- **New unit tests** — New test suite with `MockCommandRunner` and five test classes: CommandRunning, DependencyCommandBuilders, DeveloperInfoModels, LocalizationAnalysis, and Metrics.
+
+---
+
 ## Version 1.0.6 — 2026-05-03
 
 ### Architecture
