@@ -14,7 +14,7 @@
 
 [🌐 Website](https://xcodex.betterlocale.com) · [📖 Tutorial](https://xcodex.betterlocale.com/tutorial.html) · [📋 Release Notes](https://xcodex.betterlocale.com/releasenotes.html) · [🇩🇪 Deutsche README](README-NEW.md)
 
-<img src="images/example20.png" alt="xcodex Overview" width="800">
+<img src="images/xcodex-en.png" alt="xcodex Overview" width="800">
 
 </div>
 
