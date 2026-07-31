@@ -1,0 +1,111 @@
+{
+  "scripts": [
+    {
+      "name": "Claude nach bitone kopieren",
+      "commands": [
+        "rm -rf /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.claude",
+        "rm -f /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/CLAUDE.md",
+        "cp -R /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/.claude /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/",
+        "cp /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/CLAUDE.md /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/CLAUDE.md"
+      ]
+    },
+    {
+      "name": "Claude zurück verschieben",
+      "commands": [
+        "rm -rf /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/.claude",
+        "rm -f /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/CLAUDE.md",
+        "cp -R /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.claude /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/",
+        "cp /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/CLAUDE.md /Users/Christian.Drapatz/GITHOME/XClaude/claude-bitone/CLAUDE.md",
+        "rm -rf /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.claude",
+        "rm -f /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/CLAUDE.md"
+      ]
+    },
+    {
+      "name": "Claude in bitone löschen",
+      "commands": [
+        "rm -rf /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.claude",
+        "rm -f /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/CLAUDE.md"
+      ]
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "DerivedData für bitone löschen",
+      "commands": [
+        "rm -rf ~/Library/Developer/Xcode/DerivedData/bitone-*"
+      ]
+    },
+    {
+      "name": "Git-Submodule aktualisieren",
+      "commands": [
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla submodule update --init --recursive"
+      ]
+    },
+    {
+      "name": "SwiftLint + SwiftFormat ausführen",
+      "commands": [
+        "swiftlint --config /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.swiftlint.yml /Users/Christian.Drapatz/GITHOME/bitone-ios-wla",
+        "swiftformat --config /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/.swiftformat /Users/Christian.Drapatz/GITHOME/bitone-ios-wla"
+      ]
+    },
+    {
+      "name": "Branches aufräumen",
+      "commands": [
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla fetch --prune origin",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla branch --merged develop | grep -Ev '(\\*|develop|main)' | xargs -r -n1 git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla branch -d"
+      ]
+    },
+    {
+      "name": "Branch zurücksetzen",
+      "commands": [
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla fetch origin",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla reset --hard @{u}",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla clean -fd"
+      ]
+    },
+    {
+      "name": "Lokale Änderungen verwerfen",
+      "commands": [
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla reset --hard HEAD",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla clean -fd"
+      ]
+    },
+    {
+      "name": "Auf develop zurücksetzen",
+      "commands": [
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla fetch origin",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla checkout develop",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla reset --hard origin/develop",
+        "git -C /Users/Christian.Drapatz/GITHOME/bitone-ios-wla clean -fd"
+      ]
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": ".DS_Store-Dateien löschen",
+      "commands": [
+        "find /Users/Christian.Drapatz/GITHOME/bitone-ios-wla -name .DS_Store -delete"
+      ]
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "Xcode-Projekt öffnen",
+      "commands": [
+        "open /Users/Christian.Drapatz/GITHOME/bitone-ios-wla/bitone.xcodeproj"
+      ]
+    },
+    {
+      "name": "Xcode & Simulator beenden",
+      "commands": [
+        "killall Xcode Simulator 2>/dev/null; true"
+      ]
+    },
+    {
+      "separator": true
+    }
+  ]
+}
