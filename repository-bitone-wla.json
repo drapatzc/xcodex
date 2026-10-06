@@ -1,0 +1,11 @@
+{
+    "description": "bitone-wla",
+    "base" : "/Users/christian.drapatz/GITHOMETEMP/",
+    "repositories": [
+      {
+        "name": "bitone-wla",
+        "url": "ssh://git@versioncontrolgit.21c.ads:7999/dg/bitone-ios-wla.git",
+        "destination": "bitone-wla"
+      }
+    ]
+}
